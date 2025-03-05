@@ -47,6 +47,14 @@ class Bola extends Entidade {
     }
 }
 
+// Classe que cria os tijolos para serem quebrados pela bola
+class Tijolo extends Entidade {
+    constructor(x, y, largura, altura) {
+        super(x, y, largura, altura);
+        this.cor = 'green';
+    }
+}
+
 // Função que atualiza o canvas
 function atualizar() {
     desenhar();
