@@ -18,6 +18,15 @@ class Entidade {
     }
 }
 
+// Adiciona event listeners para capturar as teclas pressionadas
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') {
+        raquete.mover('esquerda');
+    } else if (event.key === 'ArrowRight') {
+        raquete.mover('direita');
+    }
+});
+
 // Classe raquete que extende da classe Entidade e irá criar a raquete do jogo
 class Raquete extends Entidade {
     constructor(x, y, largura, altura) {
@@ -25,10 +34,19 @@ class Raquete extends Entidade {
         this.velocidade = 20;
         this.cor = 'blue';
     }
-}	
+    
+// Método que irá mover a raquete para a esquerda ou direita dependendo da tecla pressionada pelo jogador
+    mover(direcao) {
+        if (direcao === 'esquerda' && this.posx > 0) {
+            this.posx -= this.velocidade;
+        } else if (direcao === 'direita' && this.posx + this.largura < canvas.width) {
+            this.posx += this.velocidade;
+        }
+    }
+}
 
-// Criação de uma nova raquete
-const raquete = new Raquete(50, canvas.height - 30, 100, 20);
+// Criação de uma nova raquete (Agora centralizada)
+raquete = new Raquete((canvas.width - 100) / 2, canvas.height - 30, 100, 20);
 
 // Função que irá desenhar a raquete
 function desenhar() {
