@@ -1,27 +1,7 @@
-# Atividade Avaliativa: Desenvolvimento de um Jogo 2D com Canvas e POO
-## Objetivo
-### Desenvolver um jogo 2D utilizando a API Canvas do HTML5 e aplicar conceitos de
-### Programação Orientada a Objetos (POO). O jogo deve ser funcional (ou o mais próximo de
-### funcional o possível) e seguir boas práticas de desenvolvimento, incluindo o uso de Git e
-### GitHub para versionamento.
-## Descrição da Atividade
-### Os alunos devem criar um jogo 2D em JavaScript e Canvas, inspirado no jogo Breakout,
-### Raquete que rebate uma bola para quebrar blocos, como demonstrado abaixo.
-### O jogo deve ser estruturado com classes bem definidas para entidades como jogador,
-### blocos e bola. O uso de Git e GitHub é obrigatório, com um histórico de commits que
-### comprove o desenvolvimento progressivo.
-## Requisitos
+# Jogo 2d Utilizando POO simulando um 'Breackout'
 
-### Uso de Canvas:
-### ● O jogo deve ser renderizado utilizando a API Canvas do HTML5.
+## Sobre: Jogo feito com Orientação a Objeto utilizando JavaScript, jogo simples utilizando a base feita por ### outro jogo feito em sala posto em pratica neste jogo. O jogo possui uma raquete que sera utilizada para rebater a bola, o objetivo do jogo é simples, eliminar todos os blocos/tijolos sem deixar a bola escapar, caso ela escape você perde o jogo
 
-### Programação Orientada a Objetos:
-### ● O código deve estar organizado em classes, aplicando encapsulamento, herança e
-### polimorfismo quando aplicável.
-### Funcionalidade:
-### ● O jogo deve ser jogável, com regras claras e objetivos definidos.
-### ● Deve incluir pelo menos:
-### ○ Uma raquete controlável pelo jogador no eixo X
-### ○ Uma bola que troque de direção sempre que tocar na raquete, parede lateral ou bloco
-### ○ Um sistema de pontuação ou progressão.
-### ○ Blocos que sejam ‘destruidos’ ao serem tocados
+## Instruções:
+### Utilizar as 'setinhas' do teclado apenas utilizando os botões da esquerda e da direita
+
