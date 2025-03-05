@@ -4,4 +4,3 @@
 
 ## Instruções:
 ### Utilizar as 'setinhas' do teclado apenas utilizando os botões da esquerda e da direita
-
