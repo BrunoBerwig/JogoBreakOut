@@ -57,11 +57,31 @@ function desenhar() {
 // Classe bola que extende da classe Entidade e irá criar a bola do jogo para ser rebatida pela raquete
 class Bola extends Entidade {
     constructor(x, y, raio, velocidade) {
-        super(x, y, raio, raio);
+        super(x, y, raio * 2, raio * 2); //eu mudei isso aq
         this.raio = raio;
         this.velocidadeX = velocidade;
         this.velocidadeY = -velocidade;
         this.cor = 'red';
+    }
+    // Desenha a bola no canvas
+    desenhar(ctx) {
+        ctx.fillStyle = this.cor;
+        ctx.beginPath();
+        ctx.arc(this.posx, this.posy, this.raio, 0, Math.PI * 2);
+        ctx.fill();
+    }
+    // Atualiza a posição da bola
+    atualizar() {
+        this.posx += this.velocidadeX;
+        this.posy += this.velocidadeY;
+
+        if (this.posx + this.raio > canvas.width || this.posx - this.raio < 0) {
+            this.velocidadeX = -this.velocidadeX;
+        }
+
+        if (this.posy - this.raio < 0) {
+            this.velocidadeY = -this.velocidadeY;
+        }
     }
 }
 
@@ -79,5 +99,5 @@ function atualizar() {
     requestAnimationFrame(atualizar);
 }
 
-// Função que faz o jogo rodar
+// Função que faz atualizar os frames do jogo
 atualizar();
