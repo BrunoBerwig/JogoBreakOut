@@ -10,7 +10,7 @@ class Entidade {
         this.largura = largura;
         this.altura = altura;
     }
-    
+
 // O método desenhar irá desenhar a entidade no canvas facilitando a reutilização de código
     desenhar(ctx) {
         ctx.fillStyle = this.cor;
@@ -18,7 +18,7 @@ class Entidade {
     }
 }
 
-// Classe raquete que extende da classe Entidade
+// Classe raquete que extende da classe Entidade e irá criar a raquete do jogo
 class Raquete extends Entidade {
     constructor(x, y, largura, altura) {
         super(x, y, largura, altura);
@@ -26,6 +26,7 @@ class Raquete extends Entidade {
         this.cor = 'blue';
     }
 }	
+
 // Criação de uma nova raquete
 const raquete = new Raquete(50, canvas.height - 30, 100, 20);
 
@@ -33,6 +34,17 @@ const raquete = new Raquete(50, canvas.height - 30, 100, 20);
 function desenhar() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     raquete.desenhar(ctx);
+}
+
+// Classe bola que extende da classe Entidade e irá criar a bola do jogo para ser rebatida pela raquete
+class Bola extends Entidade {
+    constructor(x, y, raio, velocidade) {
+        super(x, y, raio, raio);
+        this.raio = raio;
+        this.velocidadeX = velocidade;
+        this.velocidadeY = -velocidade;
+        this.cor = 'red';
+    }
 }
 
 // Função que atualiza o canvas
