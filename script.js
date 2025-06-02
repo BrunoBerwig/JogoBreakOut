@@ -39,6 +39,7 @@ class Bola extends Entidade {
         this.velocidadeX = velocidade;
         this.velocidadeY = -velocidade;
         this.cor = 'red';
+        this.ativa = true;
     }
 
     desenhar(ctx) {
@@ -58,6 +59,10 @@ class Bola extends Entidade {
 
         if (this.posy - this.raio < 0) {
             this.velocidadeY = -this.velocidadeY;
+        }
+
+        if (this.posy - this.raio > canvas.height) {
+            this.ativa = false;
         }
     }
 
@@ -151,23 +156,28 @@ class PowerUp extends Entidade {
                 jogo.vidas += 1;
                 break;
             case 'bolaLenta':
-                jogo.bola.velocidadeX *= 0.5;
-                jogo.bola.velocidadeY *= 0.5;
+                jogo.bolas.forEach(bola => {
+                    bola.velocidadeX *= 0.5;
+                    bola.velocidadeY *= 0.5;
+                });
                 setTimeout(() => {
-                    jogo.bola.velocidadeX /= 0.5;
-                    jogo.bola.velocidadeY /= 0.5;
+                    jogo.bolas.forEach(bola => {
+                        bola.velocidadeX /= 0.5;
+                        bola.velocidadeY /= 0.5;
+                    });
                 }, 10000);
                 break;
             case 'bolaExtra':
+                const bolaPrincipal = jogo.bolas[0];
                 const novaBola = new Bola(
-                    jogo.bola.posx,
-                    jogo.bola.posy,
-                    jogo.bola.raio,
-                    Math.abs(jogo.bola.velocidadeX)
+                    bolaPrincipal.posx,
+                    bolaPrincipal.posy,
+                    bolaPrincipal.raio,
+                    Math.abs(bolaPrincipal.velocidadeX)
                 );
-                novaBola.velocidadeX = -jogo.bola.velocidadeX;
-                novaBola.velocidadeY = -jogo.bola.velocidadeY;
-                jogo.bolasExtras.push(novaBola);
+                novaBola.velocidadeX = -bolaPrincipal.velocidadeX;
+                novaBola.velocidadeY = -bolaPrincipal.velocidadeY;
+                jogo.bolas.push(novaBola);
                 break;
         }
     }
@@ -178,8 +188,7 @@ class Jogo {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.raquete = new Raquete(canvas.width / 2 - 50, canvas.height - 30, 100, 20);
-        this.bola = new Bola(canvas.width / 2, canvas.height - 50, 10, 4);
-        this.bolasExtras = []; 
+        this.bolas = [new Bola(canvas.width / 2, canvas.height - 50, 10, 4)];
         this.tijolos = [];
         this.powerUps = [];
         this.pontuacao = 0;
@@ -223,54 +232,39 @@ class Jogo {
     }
 
     verificarColisao() {
-        this.bola.verificarColisaoRaquete(this.raquete);
+        this.bolas.forEach(bola => {
+            if (!bola.ativa) return;
 
-        if (this.bola.verificarColisaoTijolos(this.tijolos)) {
-            this.pontuacao++;
-            if (this.tijolos.length === 0) {
-                this.criarTijolos();
-            }
-            if (Math.random() < 0.2) {
-                const x = this.bola.posx - 10;
-                const y = this.bola.posy - 10;
-                this.powerUps.push(new PowerUp(x, y));
-            }
-        }
+            bola.verificarColisaoRaquete(this.raquete);
 
-        for (let i = this.bolasExtras.length - 1; i >= 0; i--) {
-            const bolaExtra = this.bolasExtras[i];
-            bolaExtra.verificarColisaoRaquete(this.raquete);
-
-            if (bolaExtra.verificarColisaoTijolos(this.tijolos)) {
+            if (bola.verificarColisaoTijolos(this.tijolos)) {
                 this.pontuacao++;
                 if (this.tijolos.length === 0) {
                     this.criarTijolos();
                 }
                 if (Math.random() < 0.2) {
-                    const x = bolaExtra.posx - 10;
-                    const y = bolaExtra.posy - 10;
+                    const x = bola.posx - 10;
+                    const y = bola.posy - 10;
                     this.powerUps.push(new PowerUp(x, y));
                 }
             }
-        }
+        });
 
-        if (this.bola.posy + this.bola.raio > this.canvas.height) {
+        const bolasAtivas = this.bolas.filter(bola => bola.ativa);
+        if (bolasAtivas.length === 0) {
             this.vidas--;
             if (this.vidas <= 0) {
                 this.gameOver = true;
             } else {
-                this.bola = new Bola(this.canvas.width / 2, this.canvas.height - 50, 10, 4);
+                this.bolas = [new Bola(this.canvas.width / 2, this.canvas.height - 50, 10, 4)];
                 this.raquete.posx = this.canvas.width / 2 - this.raquete.largura / 2;
-                this.bolasExtras = [];
             }
         }
-        this.bolasExtras = this.bolasExtras.filter(bolaExtra => bolaExtra.posy - bolaExtra.raio <= this.canvas.height);
     }
 
     reiniciarJogo() {
-        this.bola = new Bola(this.canvas.width / 2, this.canvas.height - 50, 10, 4);
+        this.bolas = [new Bola(this.canvas.width / 2, this.canvas.height - 50, 10, 4)];
         this.raquete = new Raquete(this.canvas.width / 2 - 50, this.canvas.height - 30, 100, 20);
-        this.bolasExtras = [];
         this.criarTijolos();
         this.powerUps = [];
         this.pontuacao = 0;
@@ -293,8 +287,9 @@ class Jogo {
             return;
         }
 
-        this.bola.atualizar();
-        this.bolasExtras.forEach(bolaExtra => bolaExtra.atualizar());
+        this.bolas.forEach(bola => {
+            if (bola.ativa) bola.atualizar();
+        });
 
         this.powerUps.forEach((powerUp, i) => {
             powerUp.atualizar();
@@ -310,8 +305,9 @@ class Jogo {
         this.verificarColisao();
 
         this.raquete.desenhar(this.ctx);
-        this.bola.desenhar(this.ctx);
-        this.bolasExtras.forEach(bolaExtra => bolaExtra.desenhar(this.ctx));
+        this.bolas.forEach(bola => {
+            if (bola.ativa) bola.desenhar(this.ctx);
+        });
         this.tijolos.forEach(t => t.desenhar(this.ctx));
         this.powerUps.forEach(pu => pu.desenhar(this.ctx));
 
