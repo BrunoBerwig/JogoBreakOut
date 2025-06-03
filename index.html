@@ -1,27 +1,35 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo Breakout</title>
-    <style>
-        body {
-            align-items: center;
-            justify-content: center;
-            display: flex;
-            background-color: rgb(0, 0, 0);
-            margin-top: 100px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Jogo Breakout</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: black;
+      overflow: hidden;
+    }
+
+    canvas {
+      background-color: black;
+      border: 2px solid white;
+      touch-action: none; /* evita zoom e rolagem */
+    }
+  </style>
 </head>
 <body>
-    <style>
-        #JogoCanvas {
-            border: 2px solid rgb(255, 255, 255);
-            background-color: rgb(0, 0, 0);
-        }
-    </style>
-    <canvas id="JogoCanvas" width="900" height="500" ></canvas>
-    <script type="module" src="script.js"></script>
+  <canvas id="JogoCanvas"></canvas>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
