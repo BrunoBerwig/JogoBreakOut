@@ -21,9 +21,9 @@ export class PowerUp extends Entidade {
     gerarTipo() {
         const tipos = [
             'raqueteGrande', 'vidaExtra', 'bolaLenta', 'bolaExtra', 'multiBola',
-            // NOVOS POWER-UPS
+
             'bolaDeFogo', 'escudoBase',
-            // NOVOS POWER-DOWNS
+
             'raquetePequena', 'bolaRapidaDemais'
         ];
         return tipos[Math.floor(Math.random() * tipos.length)];
@@ -98,17 +98,14 @@ export class PowerUp extends Entidade {
     aplicarEfeito(jogo) {
         switch (this.tipo) {
             case 'raqueteGrande':
-                // ... (código existente)
                 const larguraOriginalRaqueteG = jogo.raquete.largura;
                 jogo.raquete.largura = Math.min(larguraOriginalRaqueteG * 1.5, jogo.canvas.width * 0.6);
                 setTimeout(() => { jogo.raquete.largura = larguraOriginalRaqueteG; }, 10000);
                 break;
             case 'vidaExtra':
-                // ... (código existente)
                 jogo.vidas++;
                 break;
             case 'bolaLenta':
-                // ... (código existente)
                 jogo.bolas.forEach(bola => {
                     if (bola.ativa) {
                         bola.velocidadeX *= 0.6;
@@ -132,18 +129,17 @@ export class PowerUp extends Entidade {
                 break;
             case 'bolaExtra':
             case 'multiBola':
-                // ... (código existente)
                 const maxBolas = 5;
                 let bolasParaAdicionar = (this.tipo === 'multiBola' ? 2 : 1);
                 const bolaReferencia = jogo.bolas.find(b => b.ativa) || jogo.bolas[0];
                 if (bolaReferencia) {
                     for (let i = 0; i < bolasParaAdicionar && jogo.bolas.length < maxBolas; i++) {
-                        const novaBola = new Bola( // Certifique-se que Bola está importada se for usar 'new Bola'
+                        const novaBola = new Bola(
                             bolaReferencia.centroX,
                             bolaReferencia.centroY,
                             bolaReferencia.raio,
                             bolaReferencia.velocidadeBase,
-                            jogo.canvas // Passar canvas para a nova bola
+                            jogo.canvas
                         );
                         const anguloAleatorio = (Math.random() - 0.5) * (Math.PI / 3);
                         novaBola.velocidadeX = bolaReferencia.velocidadeBase * Math.sin(anguloAleatorio);
@@ -158,8 +154,8 @@ export class PowerUp extends Entidade {
                 jogo.bolas.forEach(bola => {
                     if (bola.ativa) {
                         bola.emFogo = true;
-                        bola.corOriginalFogo = bola.cor; // Salva cor para restaurar
-                        bola.cor = '#FF4500'; // Cor de fogo
+                        bola.corOriginalFogo = bola.cor; 
+                        bola.cor = '#FF4500'; 
                     }
                 });
                 setTimeout(() => {
@@ -169,7 +165,7 @@ export class PowerUp extends Entidade {
                             bola.cor = bola.corOriginalFogo || '#E94E77'; // Restaura cor
                         }
                     });
-                }, 7000); // Dura 7 segundos
+                }, 7000); 
                 break;
 
             case 'escudoBase':
@@ -204,12 +200,9 @@ export class PowerUp extends Entidade {
             case 'bolaRapidaDemais':
                 jogo.bolas.forEach(bola => {
                     if (bola.ativa) {
-                        // Aumenta a velocidade atual
                         bola.velocidadeX *= 1.8;
                         bola.velocidadeY *= 1.8;
-
-                        // Limita a velocidade máxima para evitar problemas (ex: atravessar objetos)
-                        const maxVelComponent = bola.velocidadeBase * 3; // Ex: 3x a velocidade base
+                        const maxVelComponent = bola.velocidadeBase * 3;
                         bola.velocidadeX = Math.sign(bola.velocidadeX) * Math.min(Math.abs(bola.velocidadeX), maxVelComponent);
                         bola.velocidadeY = Math.sign(bola.velocidadeY) * Math.min(Math.abs(bola.velocidadeY), maxVelComponent);
                     }
@@ -217,18 +210,17 @@ export class PowerUp extends Entidade {
                 setTimeout(() => {
                     jogo.bolas.forEach(bola => {
                         if (bola.ativa) {
-                            // Restaura para a velocidade base da bola, mantendo a direção
                             const velMag = Math.sqrt(bola.velocidadeX**2 + bola.velocidadeY**2);
-                            if (velMag > 0.1) { // Evita divisão por zero
+                            if (velMag > 0.1) { 
                                 bola.velocidadeX = (bola.velocidadeX / velMag) * bola.velocidadeBase;
                                 bola.velocidadeY = (bola.velocidadeY / velMag) * bola.velocidadeBase;
-                            } else { // Se estiver quase parada, relança
+                            } else { 
                                 bola.velocidadeX = (Math.random() > 0.5 ? 1: -1) * bola.velocidadeBase * 0.707;
                                 bola.velocidadeY = -bola.velocidadeBase * 0.707;
                             }
                         }
                     });
-                }, 8000); // Dura 8 segundos
+                }, 8000);
                 break;
         }
     }
