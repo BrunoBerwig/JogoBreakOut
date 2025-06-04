@@ -23,11 +23,11 @@
       border: 2px solid #B0B0E0;
       background-color: #000000;
       width: 100%;
-      max-width: 900px;
+      max-width: 900px; /* Mantém o tamanho máximo original */
       height: auto;
-      aspect-ratio: 900 / 500;
+      aspect-ratio: 900 / 500; /* Proporção original */
       display: block;
-      margin: auto;
+      margin: auto; /* Centraliza se max-width for atingido */
       box-shadow: 0 0 20px rgba(120, 120, 255, 0.3);
       border-radius: 5px;
     }
@@ -36,9 +36,9 @@
       color: #D0D0F0;
       text-align: center;
       margin-top: 15px;
-      font-size: clamp(12px, 2.5vw, 14px);
+      font-size: clamp(12px, 2.5vw, 14px); /* Fonte responsiva */
       line-height: 1.5;
-      max-width: 90%;
+      max-width: 90%; /* Evita que o texto fique muito largo em telas grandes */
     }
   </style>
 </head>
@@ -49,6 +49,6 @@
     <br>
     <strong>Mobile:</strong> Arraste para mover a raquete. Toque nas opções do menu.
   </div>
-  <script type="module" src="script.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
