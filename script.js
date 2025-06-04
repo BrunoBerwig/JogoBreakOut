@@ -1,23 +1,6 @@
 const canvas = document.getElementById('JogoCanvas');
 const ctx = canvas.getContext('2d');
 
-const VELOCIDADE_BOLA_BASE = 2;
-const DURACAO_POWERUP = 10000;
-
-// Define o tamanho base para escalonamento
-const LARGURA_PADRAO = 900;
-const ALTURA_PADRAO = 500;
-
-function redimensionarCanvas(canvas) {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-
-redimensionarCanvas(canvas);
-window.addEventListener('resize', () => {
-    redimensionarCanvas(canvas);
-});
-
 class Entidade {
     constructor(x, y, largura, altura) {
         this.posx = x;
@@ -57,9 +40,6 @@ class Bola extends Entidade {
         this.velocidadeY = -velocidade;
         this.cor = 'red';
         this.ativa = true;
-        this.velocidadeOriginalX = velocidade;
-        this.velocidadeOriginalY = -velocidade;
-        this.bolaLentaAtiva = false;
     }
 
     desenhar(ctx) {
@@ -113,22 +93,6 @@ class Bola extends Entidade {
             }
         }
         return false;
-    }
-
-    aplicarBolaLenta() {
-        if (!this.bolaLentaAtiva) {
-            this.velocidadeX *= 0.5;
-            this.velocidadeY *= 0.5;
-            this.bolaLentaAtiva = true;
-        }
-    }
-
-    removerBolaLenta() {
-        if (this.bolaLentaAtiva) {
-            this.velocidadeX = this.velocidadeOriginalX * (this.velocidadeX < 0 ? -1 : 1);
-            this.velocidadeY = this.velocidadeOriginalY * (this.velocidadeY < 0 ? -1 : 1);
-            this.bolaLentaAtiva = false;
-        }
     }
 }
 
@@ -186,16 +150,22 @@ class PowerUp extends Entidade {
                 jogo.raquete.largura *= 1.5;
                 setTimeout(() => {
                     jogo.raquete.largura /= 1.5;
-                }, DURACAO_POWERUP);
+                }, 10000);
                 break;
             case 'vidaExtra':
                 jogo.vidas += 1;
                 break;
             case 'bolaLenta':
-                jogo.bolas.forEach(bola => bola.aplicarBolaLenta());
+                jogo.bolas.forEach(bola => {
+                    bola.velocidadeX *= 0.5;
+                    bola.velocidadeY *= 0.5;
+                });
                 setTimeout(() => {
-                    jogo.bolas.forEach(bola => bola.removerBolaLenta());
-                }, DURACAO_POWERUP);
+                    jogo.bolas.forEach(bola => {
+                        bola.velocidadeX /= 0.5;
+                        bola.velocidadeY /= 0.5;
+                    });
+                }, 10000);
                 break;
             case 'bolaExtra':
                 const bolaPrincipal = jogo.bolas[0];
@@ -203,10 +173,10 @@ class PowerUp extends Entidade {
                     bolaPrincipal.posx,
                     bolaPrincipal.posy,
                     bolaPrincipal.raio,
-                    VELOCIDADE_BOLA_BASE * jogo.escala
+                    Math.abs(bolaPrincipal.velocidadeX)
                 );
-                novaBola.velocidadeX = -bolaPrincipal.velocidadeX * 0.5;
-                novaBola.velocidadeY = -bolaPrincipal.velocidadeY * 0.5;
+                novaBola.velocidadeX = -bolaPrincipal.velocidadeX;
+                novaBola.velocidadeY = -bolaPrincipal.velocidadeY;
                 jogo.bolas.push(novaBola);
                 break;
         }
@@ -217,50 +187,26 @@ class Jogo {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
-
-        // Escala para ajustar elementos proporcionalmente
-        this.escala = this.canvas.width / LARGURA_PADRAO;
-
-        this.raquete = new Raquete(
-            this.canvas.width / 2 - (100 * this.escala) / 2,
-            this.canvas.height - 30 * this.escala,
-            100 * this.escala,
-            20 * this.escala
-        );
-
-        this.bolas = [
-            new Bola(
-                this.canvas.width / 2,
-                this.canvas.height - 50 * this.escala,
-                10 * this.escala,
-                VELOCIDADE_BOLA_BASE * this.escala
-            )
-        ];
-
+        this.raquete = new Raquete(canvas.width / 2 - 50, canvas.height - 30, 100, 20);
+        this.bolas = [new Bola(canvas.width / 2, canvas.height - 50, 10, 4)];
         this.tijolos = [];
         this.powerUps = [];
         this.pontuacao = 0;
         this.vidas = 3;
         this.gameOver = false;
-        this.estado = 'inicio';
-
         this.criarTijolos();
-
         this.iniciarEventos();
-
-        // Controle para evitar múltiplos loops em reiniciar
-        this.loopAtivo = false;
     }
 
     criarTijolos() {
         this.tijolos = [];
         const linhas = 5;
         const colunas = 10;
-        const largura = 75 * this.escala;
-        const altura = 20 * this.escala;
-        const padding = 10 * this.escala;
-        const offsetTop = 30 * this.escala;
-        const offsetLeft = 30 * this.escala;
+        const largura = 75;
+        const altura = 20;
+        const padding = 10;
+        const offsetTop = 30;
+        const offsetLeft = 30;
 
         for (let c = 0; c < colunas; c++) {
             for (let r = 0; r < linhas; r++) {
@@ -272,60 +218,16 @@ class Jogo {
     }
 
     iniciarEventos() {
-        this.teclaReiniciarPressionada = false;
-
         document.addEventListener('keydown', (e) => {
-            if (this.estado === 'inicio') {
-                this.estado = 'jogando';
-                if (!this.loopAtivo) this.loop();
-                return;
-            }
-
-            if (this.estado === 'pausado') {
-                if (e.code === 'KeyP' || e.code === 'Escape') {
-                    this.estado = 'jogando';
+            if (this.gameOver) {
+                this.reiniciarJogo();
+            } else {
+                if (e.code === 'ArrowLeft') {
+                    this.raquete.mover('esquerda');
+                } else if (e.code === 'ArrowRight') {
+                    this.raquete.mover('direita');
                 }
-                return;
             }
-
-            if (this.estado === 'gameover') {
-                if (!this.teclaReiniciarPressionada) {
-                    this.reiniciarJogo();
-                    this.teclaReiniciarPressionada = true;
-                }
-                return;
-            }
-
-            if (e.code === 'ArrowLeft') {
-                this.raquete.mover('esquerda');
-            } else if (e.code === 'ArrowRight') {
-                this.raquete.mover('direita');
-            } else if (e.code === 'KeyP' || e.code === 'Escape') {
-                this.estado = 'pausado';
-            }
-        });
-
-        document.addEventListener('keyup', (e) => {
-            if (this.estado === 'gameover') {
-                this.teclaReiniciarPressionada = false;
-            }
-        });
-
-        // Controle por toque (arrastar dedo para mover a raquete)
-        this.canvas.addEventListener('touchmove', (e) => {
-            const toque = e.touches[0];
-            const posToqueX = toque.clientX;
-
-            // Centraliza a raquete no dedo
-            this.raquete.posx = posToqueX - this.raquete.largura / 2;
-
-            // Limita nas bordas
-            if (this.raquete.posx < 0) this.raquete.posx = 0;
-            if (this.raquete.posx + this.raquete.largura > this.canvas.width) {
-                this.raquete.posx = this.canvas.width - this.raquete.largura;
-            }
-
-            e.preventDefault();
         });
     }
 
@@ -341,8 +243,8 @@ class Jogo {
                     this.criarTijolos();
                 }
                 if (Math.random() < 0.2) {
-                    const x = bola.posx - 10 * this.escala;
-                    const y = bola.posy - 10 * this.escala;
+                    const x = bola.posx - 10;
+                    const y = bola.posy - 10;
                     this.powerUps.push(new PowerUp(x, y));
                 }
             }
@@ -353,120 +255,69 @@ class Jogo {
             this.vidas--;
             if (this.vidas <= 0) {
                 this.gameOver = true;
-                this.estado = 'gameover';
             } else {
-                this.bolas = [
-                    new Bola(
-                        this.canvas.width / 2,
-                        this.canvas.height - 50 * this.escala,
-                        10 * this.escala,
-                        VELOCIDADE_BOLA_BASE * this.escala
-                    )
-                ];
+                this.bolas = [new Bola(this.canvas.width / 2, this.canvas.height - 50, 10, 4)];
                 this.raquete.posx = this.canvas.width / 2 - this.raquete.largura / 2;
             }
         }
     }
 
     reiniciarJogo() {
-        this.escala = this.canvas.width / LARGURA_PADRAO;
-
-        this.bolas = [
-            new Bola(
-                this.canvas.width / 2,
-                this.canvas.height - 50 * this.escala,
-                10 * this.escala,
-                VELOCIDADE_BOLA_BASE * this.escala
-            )
-        ];
-        this.raquete = new Raquete(
-            this.canvas.width / 2 - (100 * this.escala) / 2,
-            this.canvas.height - 30 * this.escala,
-            100 * this.escala,
-            20 * this.escala
-        );
+        this.bolas = [new Bola(this.canvas.width / 2, this.canvas.height - 50, 10, 4)];
+        this.raquete = new Raquete(this.canvas.width / 2 - 50, this.canvas.height - 30, 100, 20);
         this.criarTijolos();
         this.powerUps = [];
         this.pontuacao = 0;
         this.vidas = 3;
         this.gameOver = false;
-        this.estado = 'jogando';
-        if (!this.loopAtivo) this.loop();
+        this.loop();
     }
 
     loop() {
-        this.loopAtivo = true;
-
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        if (this.estado === 'inicio') {
+        if (this.gameOver) {
             this.ctx.fillStyle = 'white';
-            this.ctx.font = `${30 * this.escala}px Arial`;
+            this.ctx.font = '30px Arial';
             this.ctx.textAlign = 'center';
-            this.ctx.fillText('Pressione qualquer tecla para iniciar', this.canvas.width / 2, this.canvas.height / 2);
-            requestAnimationFrame(() => this.loop());
+            this.ctx.fillText('Game Over!', this.canvas.width / 2, this.canvas.height / 2 - 40);
+            this.ctx.font = '20px Arial';
+            this.ctx.fillText(`Sua pontuação: ${this.pontuacao}`, this.canvas.width / 2, this.canvas.height / 2);
+            this.ctx.fillText('Clique em qualquer tecla para reiniciar!', this.canvas.width / 2, this.canvas.height / 2 + 40);
             return;
         }
 
-        if (this.estado === 'pausado') {
-            this.ctx.fillStyle = 'white';
-            this.ctx.font = `${40 * this.escala}px Arial`;
-            this.ctx.textAlign = 'center';
-            this.ctx.fillText('PAUSADO', this.canvas.width / 2, this.canvas.height / 2);
-            requestAnimationFrame(() => this.loop());
-            return;
-        }
-
-        if (this.estado === 'gameover') {
-            this.ctx.fillStyle = 'red';
-            this.ctx.font = `${40 * this.escala}px Arial`;
-            this.ctx.textAlign = 'center';
-            this.ctx.fillText('GAME OVER', this.canvas.width / 2, this.canvas.height / 2);
-            this.ctx.font = `${20 * this.escala}px Arial`;
-            this.ctx.fillText('Pressione qualquer tecla para reiniciar', this.canvas.width / 2, this.canvas.height / 2 + 50 * this.escala);
-            return;
-        }
-
-        // Atualizar e desenhar bolas
         this.bolas.forEach(bola => {
-            if (bola.ativa) {
-                bola.atualizar();
-                bola.desenhar(this.ctx);
-            }
+            if (bola.ativa) bola.atualizar();
         });
 
-        // Atualizar e desenhar power-ups
-        this.powerUps.forEach((powerUp, index) => {
+        this.powerUps.forEach((powerUp, i) => {
             powerUp.atualizar();
-            powerUp.desenhar(this.ctx);
 
-            if (powerUp.verificarColisaoRaquete(this.raquete)) {
+            if (powerUp.posy > this.canvas.height) {
+                this.powerUps.splice(i, 1);
+            } else if (powerUp.verificarColisaoRaquete(this.raquete)) {
                 powerUp.aplicarEfeito(this);
-                this.powerUps.splice(index, 1);
-            } else if (powerUp.posy > this.canvas.height) {
-                this.powerUps.splice(index, 1);
+                this.powerUps.splice(i, 1);
             }
         });
 
-        // Desenhar raquete
-        this.raquete.desenhar(this.ctx);
-
-        // Desenhar tijolos
-        this.tijolos.forEach(tijolo => tijolo.desenhar(this.ctx));
-
-        // Desenhar placar e vidas
-        this.ctx.fillStyle = 'white';
-        this.ctx.font = `${20 * this.escala}px Arial`;
-        this.ctx.textAlign = 'left';
-        this.ctx.fillText(`Pontos: ${this.pontuacao}`, 10, 20 * this.escala);
-        this.ctx.fillText(`Vidas: ${this.vidas}`, 10, 45 * this.escala);
-
-        // Checar colisões
         this.verificarColisao();
 
-        if (!this.gameOver) {
-            requestAnimationFrame(() => this.loop());
-        }
+        this.raquete.desenhar(this.ctx);
+        this.bolas.forEach(bola => {
+            if (bola.ativa) bola.desenhar(this.ctx);
+        });
+        this.tijolos.forEach(t => t.desenhar(this.ctx));
+        this.powerUps.forEach(pu => pu.desenhar(this.ctx));
+
+        this.ctx.fillStyle = 'white';
+        this.ctx.font = '18px Arial';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText(`Pontuação: ${this.pontuacao}`, 10, 20);
+        this.ctx.fillText(`Vidas: ${this.vidas}`, 10, 40);
+
+        requestAnimationFrame(() => this.loop());
     }
 }
 
