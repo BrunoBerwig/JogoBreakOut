@@ -172,7 +172,7 @@ class PowerUp extends Entidade {
         super(posx - tamanhoBase / 2, posy - tamanhoBase / 2, tamanhoBase, tamanhoBase);
         this.tipo = this.gerarTipo();
         this.cor = this.definirCor();
-        this.velocidadeY = canvas.height / 300; // Velocidade responsiva
+        this.velocidadeY = canvas.height / 300; 
         this.pulseAngle = Math.random() * Math.PI * 2;
         this.pulseSpeed = 0.06;
         this.pulseAmplitude = 0.2;
