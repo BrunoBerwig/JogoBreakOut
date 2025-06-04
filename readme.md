@@ -72,7 +72,7 @@ Fique de olho nos itens que caem dos tijolos destruídos! Eles podem ser a chave
 
 ## 🕹️ Como Jogar
 
-1.  Acesse o site: [Jogue BreakOut!](https://brunoberwig.github.io/JogoBreakOut/) e começe a jogar!
+1.  Acesse o site: [BreakOut!](https://brunoberwig.github.io/JogoBreakOut/) e começe a jogar!
 2.  **Divirta-se!**
 
 ---
