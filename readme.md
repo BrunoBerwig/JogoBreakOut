@@ -9,13 +9,6 @@
 
 ---
 
-<div align="center">
-  <img src="https://imgur.com/FgVGJV8" alt="Gameplay do Breakout V2" width="70%">
-  <p><em>👆 Substitua esta imagem por um GIF do seu jogo! 👆</em></p>
-</div>
-
----
-
 ## 🌟 Sobre o Jogo
 
 **Breakout V2** leva a emoção do arcade para o seu navegador! Controle uma raquete para rebater a bola e destruir todos os tijolos na tela. Mas cuidado, não é tão simples quanto parece! A cada nível, novos desafios surgem, e power-ups (e power-downs!) podem virar o jogo a qualquer momento.
