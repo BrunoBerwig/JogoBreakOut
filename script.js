@@ -19,7 +19,7 @@ class Entidade {
 class Raquete extends Entidade {
     constructor(x, y, largura, altura) {
         super(x, y, largura, altura);
-        this.velocidade = 30; // Velocidade para teclado
+        this.velocidade = 30;
         this.cor = '#4A90E2';
     }
 
@@ -35,9 +35,8 @@ class Raquete extends Entidade {
 
 class Bola extends Entidade {
     constructor(x, y, raio, velocidade) {
-        super(x - raio, y - raio, raio * 2, raio * 2); // Ajusta posx, posy para serem o canto superior esquerdo da bounding box
+        super(x - raio, y - raio, raio * 2, raio * 2);
         this.raio = raio;
-        // Posição central da bola
         this.centroX = x;
         this.centroY = y;
         this.velocidadeX = velocidade;
@@ -60,8 +59,6 @@ class Bola extends Entidade {
 
         this.centroX += this.velocidadeX;
         this.centroY += this.velocidadeY;
-
-        // Atualiza posx e posy da Entidade para manter consistência se necessário em outro lugar
         this.posx = this.centroX - this.raio;
         this.posy = this.centroY - this.raio;
 
@@ -78,7 +75,7 @@ class Bola extends Entidade {
             this.velocidadeY = -this.velocidadeY;
         }
 
-        if (this.centroY + this.raio > canvas.height) { // Bola caiu
+        if (this.centroY + this.raio > canvas.height) {
             this.ativa = false;
         }
     }
@@ -92,21 +89,19 @@ class Bola extends Entidade {
         const distanciaQuadrada = (distanciaX * distanciaX) + (distanciaY * distanciaY);
 
         if (distanciaQuadrada < (this.raio * this.raio)) {
-            if (this.velocidadeY > 0) { // Apenas se a bola estiver descendo
-                 this.centroY = raquete.posy - this.raio - 0.1; // Ajusta para não prender
+            if (this.velocidadeY > 0) { 
+                 this.centroY = raquete.posy - this.raio - 0.1;
             }
 
             const pontoImpacto = (this.centroX - (raquete.posx + raquete.largura / 2)) / (raquete.largura / 2);
-            const maxAnguloDesvio = Math.PI / 2.8; // Um pouco mais de 60 graus
+            const maxAnguloDesvio = Math.PI / 2.8; 
             const angulo = pontoImpacto * maxAnguloDesvio;
             
             let velocidadeTotal = Math.sqrt(this.velocidadeX * this.velocidadeX + this.velocidadeY * this.velocidadeY);
-            if (velocidadeTotal === 0) velocidadeTotal = this.velocidadeBase; // Evita divisão por zero
+            if (velocidadeTotal === 0) velocidadeTotal = this.velocidadeBase;
 
             this.velocidadeX = velocidadeTotal * Math.sin(angulo);
-            this.velocidadeY = -velocidadeTotal * Math.cos(angulo); // Sempre para cima
-
-            // Garante que a bola não tenha velocidade Y zero ou positiva após o rebote na raquete
+            this.velocidadeY = -velocidadeTotal * Math.cos(angulo); 
             if (this.velocidadeY >= -0.1) {
                  this.velocidadeY = -Math.max(0.5, Math.abs(this.velocidadeBase * Math.cos(angulo)));
             }
@@ -130,9 +125,6 @@ class Bola extends Entidade {
             if (distanciaQuadrada < (this.raio * this.raio)) {
                 tijolo.ativo = false;
                 jogo.pontuacao += tijolo.pontos;
-
-                // Lógica de ricochete mais simples e eficaz:
-                // Calcula a sobreposição da bola com o tijolo para determinar a direção da colisão.
                 const overlapLeft = (this.centroX + this.raio) - tijolo.posx;
                 const overlapRight = (tijolo.posx + tijolo.largura) - (this.centroX - this.raio);
                 const overlapTop = (this.centroY + this.raio) - tijolo.posy;
@@ -143,7 +135,6 @@ class Bola extends Entidade {
 
                 if (minOverlapY < minOverlapX) {
                     this.velocidadeY = -this.velocidadeY;
-                    // Ajuste de posição para evitar que a bola fique presa
                     this.centroY += this.velocidadeY > 0 ? minOverlapY : -minOverlapY;
                 } else {
                     this.velocidadeX = -this.velocidadeX;
@@ -429,16 +420,12 @@ class Jogo {
             if (this.estado === 'inicio' || this.estado === 'pausado') {
                 const opcoes = (this.estado === 'inicio') ? this.menuInicialOpcoes : this.menuPausaOpcoes;
                 const fontSizeTitulo = this.canvas.height / 11; // Ajustado para ser um pouco menor
-                const fontSizeOpcao = this.canvas.height / 20; // Ajustado
-                
-                // Y base para o título (desenharMenu ajusta isso)
-                // Posição Y da primeira opção do menu (aproximada)
+                const fontSizeOpcao = this.canvas.height / 20; 
                 let yPrimeiraOpcao = this.canvas.height / 2 - fontSizeTitulo * 0.2; 
-                const alturaLinhaOpcao = fontSizeOpcao * 1.8; // Altura visual de cada item do menu
+                const alturaLinhaOpcao = fontSizeOpcao * 1.8; 
 
                 opcoes.forEach((opcao, i) => {
-                    // Calcula a caixa de colisão para cada opção do menu
-                    const textoMetrica = this.ctx.measureText(opcao); // Para largura, se necessário
+                    const textoMetrica = this.ctx.measureText(opcao);
                     const larguraOpcaoToque = Math.max(textoMetrica.width * 1.2, this.canvas.width * 0.5); // Área de toque generosa
                     const opcaoXMin = this.canvas.width / 2 - larguraOpcaoToque / 2;
                     const opcaoXMax = this.canvas.width / 2 + larguraOpcaoToque / 2;
@@ -452,16 +439,16 @@ class Jogo {
                         if (this.estado === 'inicio') {
                             this.menuInicialSelecionado = i;
                             this.executarAcaoMenuInicial();
-                        } else { // pausado
+                        } else {
                             this.menuPausaSelecionado = i;
                             this.executarAcaoMenuPausa();
                         }
                     }
                 });
             } else if (this.estado === 'gameOver' || this.estado === 'vitoria' || this.estado === 'comoJogar') {
-                this.estado = 'inicio'; // Volta para o menu inicial
-                this.nivel = 1; // Reseta o nível
-                this.configurarNivel(); // Reconfigura o jogo
+                this.estado = 'inicio';
+                this.nivel = 1;
+                this.configurarNivel();
             }
         }
     }
@@ -485,7 +472,7 @@ class Jogo {
             else if (key === 'Enter') this.executarAcaoMenuPausa();
             else if (key === 'Escape' || e.key.toLowerCase() === 'p') this.estado = 'jogando';
         } else if (this.estado === 'gameOver' || this.estado === 'vitoria' || this.estado === 'comoJogar') {
-            if (key) { // Qualquer tecla
+            if (key) {
                 this.estado = 'inicio';
                 this.nivel = 1;
                 this.configurarNivel();
@@ -498,7 +485,7 @@ class Jogo {
         if (opcao === 'Iniciar Jogo') {
             this.estado = 'jogando';
             this.nivel = 1;
-            this.configurarNivel(); // Reseta pontuação aqui também se necessário
+            this.configurarNivel();
         } else if (opcao === 'Como Jogar') {
             this.estado = 'comoJogar';
         }
@@ -509,9 +496,8 @@ class Jogo {
         if (opcao === 'Continuar') this.estado = 'jogando';
         else if (opcao === 'Reiniciar Nível') {
             this.estado = 'jogando';
-            // Mantém pontuação atual do jogador ao reiniciar o nível, mas reseta vidas e posições.
             const pontuacaoAtual = this.pontuacao;
-            const vidasAtuais = this.vidas > 1 ? this.vidas -1 : 1; // Penaliza uma vida, mas não game over
+            const vidasAtuais = this.vidas > 1 ? this.vidas -1 : 1;
             this.configurarNivel();
             this.pontuacao = pontuacaoAtual;
             this.vidas = vidasAtuais;
@@ -536,8 +522,8 @@ class Jogo {
                         const tijoloDestruido = this.tijolos.find(t => !t.ativo && t.cor !== 'transparent_placeholder');
                         if (tijoloDestruido) {
                              this.powerUps.push(new PowerUp(tijoloDestruido.posx + tijoloDestruido.largura / 2, tijoloDestruido.posy + tijoloDestruido.altura / 2));
-                             tijoloDestruido.cor = 'transparent_placeholder'; // Evita dropar múltiplos do mesmo
-                        } else if (this.tijolos.length > 0 && this.tijolos.some(t => t.ativo)) { // Fallback se não achar o exato
+                             tijoloDestruido.cor = 'transparent_placeholder'; 
+                        } else if (this.tijolos.length > 0 && this.tijolos.some(t => t.ativo)) {
                             let tijoloAtivoAleatorio = this.tijolos.filter(t => t.ativo)[0];
                             if(tijoloAtivoAleatorio) {
                                  this.powerUps.push(new PowerUp(tijoloAtivoAleatorio.posx + tijoloAtivoAleatorio.largura / 2, tijoloAtivoAleatorio.posy + tijoloAtivoAleatorio.altura / 2));
@@ -565,10 +551,10 @@ class Jogo {
             this.vidas--;
             if (this.vidas <= 0) {
                 this.estado = 'gameOver';
-            } else { // Perdeu uma vida, continua o nível
+            } else {
                 this.raquete.posx = this.canvas.width / 2 - this.raquete.largura / 2;
-                const raioBola = parseFloat(this.bolas[0].raio); // Pega raio da bola anterior
-                const velocidadeBola = parseFloat(this.bolas[0].velocidadeBase); // Pega velocidade base
+                const raioBola = parseFloat(this.bolas[0].raio);
+                const velocidadeBola = parseFloat(this.bolas[0].velocidadeBase);
                 this.bolas = [new Bola(this.canvas.width / 2, this.canvas.height - 60 - raioBola, raioBola, velocidadeBola)];
             }
         }
@@ -577,10 +563,8 @@ class Jogo {
             this.nivel++;
             if (this.nivel > this.maxNiveis) {
                 this.estado = 'vitoria';
-            } else { // Próximo nível
-                // this.estado = 'jogando'; // Já está
-                this.configurarNivel(); // Configura para o próximo nível, reseta bola, etc.
-                // Pontuação é mantida e acumulada.
+            } else {
+                this.configurarNivel();
             }
         }
     }
