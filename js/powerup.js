@@ -20,7 +20,8 @@ export class PowerUp extends Entidade {
 
     gerarTipo() {
         const tipos = [
-            'raqueteGrande', 'vidaExtra', 'bolaLenta', 'bolaExtra', 'multiBola',
+            'raqueteGrande', 'vidaExtra', 'bolaLenta',
+             // 'bolaExtra', 'multiBola',
 
             'bolaDeFogo', 'escudoBase',
 
@@ -34,8 +35,8 @@ export class PowerUp extends Entidade {
             case 'raqueteGrande': return '#FFD700';
             case 'vidaExtra': return '#32CD32';
             case 'bolaLenta': return '#1E90FF';
-            case 'bolaExtra': return '#BA55D3';
-            case 'multiBola': return '#FF69B4';
+            // case 'bolaExtra': return '#BA55D3';
+            // case 'multiBola': return '#FF69B4';
             // NOVAS CORES
             case 'bolaDeFogo': return '#FF4500';     // OrangeRed
             case 'escudoBase': return '#00CED1';     // DarkTurquoise
@@ -69,8 +70,8 @@ export class PowerUp extends Entidade {
             case 'raqueteGrande': icon = '↔'; break;
             case 'vidaExtra': icon = '+♥'; break;
             case 'bolaLenta': icon = 'S'; break;
-            case 'bolaExtra': icon = '●'; break;
-            case 'multiBola': icon = '⁂'; break;
+            // case 'bolaExtra': icon = '●'; break;
+            // case 'multiBola': icon = '⁂'; break;
             // NOVOS ÍCONES
             case 'bolaDeFogo': icon = '🔥'; break;
             case 'escudoBase': icon = '🛡️'; break; // Pode ser '▬' se o emoji não renderizar bem
@@ -127,27 +128,27 @@ export class PowerUp extends Entidade {
                     });
                 }, 8000);
                 break;
-            case 'bolaExtra':
-            case 'multiBola':
-                const maxBolas = 5;
-                let bolasParaAdicionar = (this.tipo === 'multiBola' ? 2 : 1);
-                const bolaReferencia = jogo.bolas.find(b => b.ativa) || jogo.bolas[0];
-                if (bolaReferencia) {
-                    for (let i = 0; i < bolasParaAdicionar && jogo.bolas.length < maxBolas; i++) {
-                        const novaBola = new Bola(
-                            bolaReferencia.centroX,
-                            bolaReferencia.centroY,
-                            bolaReferencia.raio,
-                            bolaReferencia.velocidadeBase,
-                            jogo.canvas
-                        );
-                        const anguloAleatorio = (Math.random() - 0.5) * (Math.PI / 3);
-                        novaBola.velocidadeX = bolaReferencia.velocidadeBase * Math.sin(anguloAleatorio);
-                        novaBola.velocidadeY = -bolaReferencia.velocidadeBase * Math.cos(anguloAleatorio);
-                        jogo.bolas.push(novaBola);
-                    }
-                }
-                break;
+            // case 'bolaExtra':
+            // case 'multiBola':
+            //     const maxBolas = 5;
+            //     let bolasParaAdicionar = (this.tipo === 'multiBola' ? 2 : 1);
+            //     const bolaReferencia = jogo.bolas.find(b => b.ativa) || jogo.bolas[0];
+            //     if (bolaReferencia) {
+            //         for (let i = 0; i < bolasParaAdicionar && jogo.bolas.length < maxBolas; i++) {
+            //             const novaBola = new Bola(
+            //                 bolaReferencia.centroX,
+            //                 bolaReferencia.centroY,
+            //                 bolaReferencia.raio,
+            //                 bolaReferencia.velocidadeBase,
+            //                 jogo.canvas
+            //             );
+            //             const anguloAleatorio = (Math.random() - 0.5) * (Math.PI / 3);
+            //             novaBola.velocidadeX = bolaReferencia.velocidadeBase * Math.sin(anguloAleatorio);
+            //             novaBola.velocidadeY = -bolaReferencia.velocidadeBase * Math.cos(anguloAleatorio);
+            //             jogo.bolas.push(novaBola);
+            //         }
+            //     }
+            //     break;
 
             // NOVOS EFEITOS
             case 'bolaDeFogo':
