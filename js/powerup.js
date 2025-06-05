@@ -1,6 +1,6 @@
 import { Entidade } from './entity.js';
 // Importe a classe Bola se precisar criar novas bolas ou acessar propriedades específicas
-// import { Bola } from './ball.js'; // Geralmente não é necessário aqui, o jogo.bolas já tem
+import { Bola } from './ball.js'; // --- DESCOMENTE ESTA LINHA ---
 
 export class PowerUp extends Entidade {
     constructor(posx, posy, canvas) {
@@ -20,11 +20,8 @@ export class PowerUp extends Entidade {
 
     gerarTipo() {
         const tipos = [
-            'raqueteGrande', 'vidaExtra', 'bolaLenta',
-             // 'bolaExtra', 'multiBola',
-
+            'raqueteGrande', 'vidaExtra', 'bolaLenta', 'bolaExtra', 'multiBola',
             'bolaDeFogo', 'escudoBase',
-
             'raquetePequena', 'bolaRapidaDemais'
         ];
         return tipos[Math.floor(Math.random() * tipos.length)];
@@ -35,13 +32,12 @@ export class PowerUp extends Entidade {
             case 'raqueteGrande': return '#FFD700';
             case 'vidaExtra': return '#32CD32';
             case 'bolaLenta': return '#1E90FF';
-            // case 'bolaExtra': return '#BA55D3';
-            // case 'multiBola': return '#FF69B4';
-            // NOVAS CORES
+            case 'bolaExtra': return '#BA55D3';
+            case 'multiBola': return '#FF69B4';
             case 'bolaDeFogo': return '#FF4500';     // OrangeRed
             case 'escudoBase': return '#00CED1';     // DarkTurquoise
             case 'raquetePequena': return '#A9A9A9'; // DarkGray (power-down)
-            case 'bolaRapidaDemais': return '#DA70D6'; // Orchid (power-down, cor chamativa)
+            case 'bolaRapidaDemais': return '#DA70D6';// Orchid (power-down, cor chamativa)
             default: return '#FFFFFF';
         }
     }
@@ -70,12 +66,11 @@ export class PowerUp extends Entidade {
             case 'raqueteGrande': icon = '↔'; break;
             case 'vidaExtra': icon = '+♥'; break;
             case 'bolaLenta': icon = 'S'; break;
-            // case 'bolaExtra': icon = '●'; break;
-            // case 'multiBola': icon = '⁂'; break;
-            // NOVOS ÍCONES
+            case 'bolaExtra': icon = '●'; break;
+            case 'multiBola': icon = '⁂'; break;
             case 'bolaDeFogo': icon = '🔥'; break;
-            case 'escudoBase': icon = '🛡️'; break; // Pode ser '▬' se o emoji não renderizar bem
-            case 'raquetePequena': icon = '←→'; break; // Menor que o da raquete grande
+            case 'escudoBase': icon = '🛡️'; break;
+            case 'raquetePequena': icon = '←→'; break;
             case 'bolaRapidaDemais': icon = '⚡'; break;
         }
         ctx.fillText(icon, drawX + currentWidth / 2, drawY + currentHeight / 2 + 1);
@@ -128,29 +123,27 @@ export class PowerUp extends Entidade {
                     });
                 }, 8000);
                 break;
-            // case 'bolaExtra':
-            // case 'multiBola':
-            //     const maxBolas = 5;
-            //     let bolasParaAdicionar = (this.tipo === 'multiBola' ? 2 : 1);
-            //     const bolaReferencia = jogo.bolas.find(b => b.ativa) || jogo.bolas[0];
-            //     if (bolaReferencia) {
-            //         for (let i = 0; i < bolasParaAdicionar && jogo.bolas.length < maxBolas; i++) {
-            //             const novaBola = new Bola(
-            //                 bolaReferencia.centroX,
-            //                 bolaReferencia.centroY,
-            //                 bolaReferencia.raio,
-            //                 bolaReferencia.velocidadeBase,
-            //                 jogo.canvas
-            //             );
-            //             const anguloAleatorio = (Math.random() - 0.5) * (Math.PI / 3);
-            //             novaBola.velocidadeX = bolaReferencia.velocidadeBase * Math.sin(anguloAleatorio);
-            //             novaBola.velocidadeY = -bolaReferencia.velocidadeBase * Math.cos(anguloAleatorio);
-            //             jogo.bolas.push(novaBola);
-            //         }
-            //     }
-            //     break;
-
-            // NOVOS EFEITOS
+            case 'bolaExtra': // Este caso e o multiBola precisam da classe Bola importada
+            case 'multiBola':
+                const maxBolas = 5;
+                let bolasParaAdicionar = (this.tipo === 'multiBola' ? 2 : 1);
+                const bolaReferencia = jogo.bolas.find(b => b.ativa) || jogo.bolas[0];
+                if (bolaReferencia) {
+                    for (let i = 0; i < bolasParaAdicionar && jogo.bolas.length < maxBolas; i++) {
+                        const novaBola = new Bola( // AQUI A CLASSE BOLA É USADA
+                            bolaReferencia.centroX,
+                            bolaReferencia.centroY,
+                            bolaReferencia.raio,
+                            bolaReferencia.velocidadeBase,
+                            jogo.canvas
+                        );
+                        const anguloAleatorio = (Math.random() - 0.5) * (Math.PI / 3);
+                        novaBola.velocidadeX = bolaReferencia.velocidadeBase * Math.sin(anguloAleatorio);
+                        novaBola.velocidadeY = -bolaReferencia.velocidadeBase * Math.cos(anguloAleatorio);
+                        jogo.bolas.push(novaBola);
+                    }
+                }
+                break;
             case 'bolaDeFogo':
                 jogo.bolas.forEach(bola => {
                     if (bola.ativa) {
@@ -168,24 +161,16 @@ export class PowerUp extends Entidade {
                     });
                 }, 7000); 
                 break;
-
             case 'escudoBase':
-                if (!jogo.escudoAtivo) { // Ativa o escudo se não estiver ativo
+                if (!jogo.escudoAtivo) { 
                     jogo.escudoAtivo = true;
-                    // Opcional: escudo dura um tempo mesmo se não usado
-                    // setTimeout(() => {
-                    //     if(jogo.escudoAtivo) jogo.escudoQuebrou = true; // Marca para animação de quebra
-                    //     jogo.escudoAtivo = false;
-                    // }, 15000); // Escudo dura 15s se não for usado
                 }
                 break;
-
             case 'raquetePequena':
                 const larguraOriginalRaqueteP = jogo.raquete.largura;
-                const larguraMinima = Math.max(20, jogo.canvas.width * 0.05); // Ex: 5% da largura, mínimo 20px
+                const larguraMinima = Math.max(20, jogo.canvas.width * 0.05);
                 
                 jogo.raquete.largura = Math.max(larguraMinima, larguraOriginalRaqueteP * 0.5);
-                // Ajusta a posição para que a raquete não "pule" muito se estiver perto das bordas
                 const diffLarguraP = larguraOriginalRaqueteP - jogo.raquete.largura;
                 jogo.raquete.posx += diffLarguraP / 2;
                 jogo.raquete.posx = Math.max(0, Math.min(jogo.raquete.posx, jogo.canvas.width - jogo.raquete.largura));
@@ -193,11 +178,10 @@ export class PowerUp extends Entidade {
                 setTimeout(() => {
                     const diffLarguraRestaurar = jogo.raquete.largura - larguraOriginalRaqueteP;
                     jogo.raquete.largura = larguraOriginalRaqueteP;
-                    jogo.raquete.posx += diffLarguraRestaurar / 2; // Ajusta posx ao restaurar
+                    jogo.raquete.posx += diffLarguraRestaurar / 2; 
                     jogo.raquete.posx = Math.max(0, Math.min(jogo.raquete.posx, jogo.canvas.width - jogo.raquete.largura));
-                }, 10000); // Dura 10 segundos
+                }, 10000); 
                 break;
-
             case 'bolaRapidaDemais':
                 jogo.bolas.forEach(bola => {
                     if (bola.ativa) {
