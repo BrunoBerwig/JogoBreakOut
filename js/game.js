@@ -3,28 +3,30 @@ import { Raquete } from './paddle.js';
 import { Bola } from './ball.js';
 import { Tijolo } from './brick.js';
 import { PowerUp } from './powerup.js';
-// Se você já adicionou a classe Particula, mantenha o import:
+// Se você implementou partículas, mantenha o import:
 // import { Particula } from './particle.js';
 
 export class Jogo {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
-        this.estado = 'inicio'; // 'inicio', 'jogando', 'pausado', 'gameOver', 'vitoria', 'comoJogar'
+        this.estado = 'inicio'; 
         this.nivel = 1;
         this.maxNiveis = 3;
         this.pontuacao = 0;
-        // Vidas será configurada em configurarNivel
 
         this.menuPausaOpcoes = ['Continuar', 'Reiniciar Nível', 'Sair para Menu'];
         this.menuPausaSelecionado = 0;
         this.menuInicialOpcoes = ['Iniciar Jogo', 'Como Jogar'];
         this.menuInicialSelecionado = 0;
         
-        // Se você já adicionou partículas, mantenha esta linha:
+        this.escudoAtivo = false; // Inicializa o estado do escudo
+        // this.escudoQuebrou = false; // Para animação futura de quebra (opcional)
+        
+        // Se você implementou partículas:
         // this.particulas = []; 
 
-        this.configurarNivel(); // Configura raquete, bola inicial, tijolos, vidas, etc.
+        this.configurarNivel(); 
 
         this.iniciarEventos();
         this.loop();
@@ -59,15 +61,17 @@ export class Jogo {
         
         this.tijolos = [];
         this.powerUps = [];
-        // Se você já adicionou partículas, limpe-as aqui também:
+        
+        this.escudoAtivo = false; // Reseta o escudo ao (re)configurar o nível
+        // this.escudoQuebrou = false; // Opcional
+        
+        // Se você implementou partículas:
         // if (this.particulas) this.particulas = [];
 
-
-        // Reseta pontuação apenas se estiver no início do jogo ou começando o nível 1
         if (this.estado === 'inicio' || this.nivel === 1) {
             this.pontuacao = 0;
         }
-        this.vidas = 3; // Sempre reseta vidas ao configurar um novo nível ou reiniciar
+        this.vidas = 3; 
         this.criarTijolos();
     }
 
@@ -103,16 +107,18 @@ export class Jogo {
         }
     }
     
-    // Se você já adicionou a função de partículas, mantenha-a:
+    // Se você implementou a função de criar partículas, ela deve estar aqui. Ex:
     /* criarParticulasExplosao(x, y, corTijolo, quantidade = 12) {
-        if (!this.particulas) this.particulas = []; // Garante que o array existe
-        const tamanhoParticulaBase = this.canvas.width / 200;
+        if (!this.particulas) this.particulas = []; 
+        const tamanhoParticulaBase = this.canvas.width / 200; 
         const velocidadeParticulaBase = this.canvas.width / 350; 
         const vidaUtilBase = 40; 
 
         for (let i = 0; i < quantidade; i++) {
             this.particulas.push(new Particula(
-                x, y, corTijolo,
+                x, 
+                y, 
+                corTijolo,
                 tamanhoParticulaBase,
                 velocidadeParticulaBase,
                 vidaUtilBase
@@ -134,6 +140,7 @@ export class Jogo {
             y: (touch.clientY - rect.top) * scaleY
         };
     }
+
 
     iniciarEventos() {
         document.addEventListener('keydown', (e) => this.tratarKeyDown(e));
@@ -203,6 +210,7 @@ export class Jogo {
         }
     }
 
+
     tratarKeyDown(e) {
         const key = e.code; 
         const keyChar = e.key.toLowerCase(); 
@@ -256,21 +264,10 @@ export class Jogo {
         const opcao = this.menuPausaOpcoes[this.menuPausaSelecionado];
         if (opcao === 'Continuar') {
             this.estado = 'jogando';
-        } else if (opcao === 'Reiniciar Nível') {
-            // --- ESTA É A LÓGICA MODIFICADA ---
+        } else if (opcao === 'Reiniciar Nível') { // Mantém a correção de reiniciar nível
             this.estado = 'jogando';
-            
-            // 1. Zera a pontuação total do jogador para o reinício deste nível.
             this.pontuacao = 0; 
-            
-            // 2. Chama configurarNivel. Esta função irá:
-            //    - Resetar this.vidas para o valor padrão (ex: 3).
-            //    - Recriar os tijolos e a bola para o this.nivel atual.
-            //    - (Ela também tentaria zerar a pontuação se this.nivel for 1, o que é ok).
             this.configurarNivel(); 
-            // O this.nivel permanece o mesmo, pois configurarNivel() usa o this.nivel existente
-            // para configurar os tijolos e a dificuldade.
-            // --- FIM DA LÓGICA MODIFICADA ---
         } else if (opcao === 'Sair para Menu') {
             this.estado = 'inicio';
             this.nivel = 1; 
@@ -283,9 +280,11 @@ export class Jogo {
 
         this.bolas.forEach(bola => {
             if (bola.ativa) {
-                bola.atualizar();
+                // --- MODIFICADO: Passa a instância do jogo 'this' para o método atualizar da bola ---
+                bola.atualizar(this); 
+                // --- FIM DA MODIFICAÇÃO ---
                 bola.verificarColisaoRaquete(this.raquete);
-                if (bola.verificarColisaoTijolos(this.tijolos, this)) { // Passa 'this' (o jogo)
+                if (bola.verificarColisaoTijolos(this.tijolos, this)) { 
                     if (Math.random() < 0.2) { 
                         const tijoloDestruido = this.tijolos.find(t => !t.ativo && t.cor !== 'transparent_placeholder');
                         if (tijoloDestruido) {
@@ -323,7 +322,7 @@ export class Jogo {
             }
         });
 
-        // Se você já adicionou partículas, atualize-as aqui:
+        // Se você implementou partículas:
         /*
         if (this.particulas) {
             for (let i = this.particulas.length - 1; i >= 0; i--) {
@@ -398,8 +397,34 @@ export class Jogo {
             this.tijolos.forEach(tijolo => tijolo.desenhar(this.ctx)); 
             this.powerUps.forEach(powerUp => powerUp.desenhar(this.ctx));
             
-            // Se você já adicionou partículas, desenhe-as aqui:
+            // Se você implementou partículas:
             // if (this.particulas) this.particulas.forEach(particula => particula.desenhar(this.ctx));
+
+            // --- ADICIONADO: DESENHAR O ESCUDO DA BASE ---
+            if (this.escudoAtivo) {
+                const alturaEscudo = 8; // Altura da barra do escudo
+                const corEscudoPowerUp = '#00CED1'; // Cor base do power-up (DarkTurquoise)
+                
+                this.ctx.save();
+                
+                // Barra principal do escudo
+                this.ctx.fillStyle = `rgba(0, 206, 209, 0.35)`; // Cor com boa transparência
+                this.ctx.fillRect(0, this.canvas.height - alturaEscudo, this.canvas.width, alturaEscudo);
+                
+                // Linha de brilho sutil na parte superior do escudo para destaque
+                this.ctx.shadowColor = corEscudoPowerUp;
+                this.ctx.shadowBlur = 12; // Um brilho suave
+                this.ctx.strokeStyle = `rgba(175, 238, 238, 0.7)`; // PaleTurquoise (mais claro que DarkTurquoise)
+                this.ctx.lineWidth = 2.5; // Linha um pouco mais grossa para o brilho
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, this.canvas.height - alturaEscudo + this.ctx.lineWidth / 2); // Ajusta para a linha ficar na borda
+                this.ctx.lineTo(this.canvas.width, this.canvas.height - alturaEscudo + this.ctx.lineWidth / 2);
+                this.ctx.stroke();
+                
+                this.ctx.restore(); // Restaura o contexto (remove shadowBlur, etc.)
+            }
+            // --- FIM DA ADIÇÃO DO DESENHO DO ESCUDO ---
 
             this.desenharHUD(fontSizeBase * 1.1); 
 
